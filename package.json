@@ -14,8 +14,12 @@
   "contributes": {
     "commands": [
       {
-        "command": "custom-pomodoro.helloWorld",
-        "title": "Hello World"
+        "command": "custom-pomodoro.hiWorld",
+        "title": "Hi World"
+      }, 
+      {
+        "command": "custom-pomodoro.time",
+        "title": "Time"
       }
     ]
   },
