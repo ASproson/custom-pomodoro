@@ -1,36 +1,62 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+// "onStartUpFinished" in package.json auto-starts
+
+// Global variables
+let statusBarItem: vscode.StatusBarItem;
+let clockInterval: NodeJS.Timeout; // To store the interval for cleanup
+
+// Method is called on extension activation
 export function activate(context: vscode.ExtensionContext) {
+  // Create and configure the status bar item
+  statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+  statusBarItem.text = '$(clock) Loading...'; // Initial text with codicon
+  statusBarItem.show();
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "custom-pomodoro" is now active!');
+  // Start the clock update interval
+  clockInterval = setInterval(updateStatusBarItem, 1000); // Update every second
+  context.subscriptions.push({ dispose: () => clearInterval(clockInterval) }); // Cleanup interval
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('custom-pomodoro.hiWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hi from Custom Pomodoro!');
-	});
+  // Register commands
+  const disposableHi = vscode.commands.registerCommand('custom-pomodoro.hiWorld', () => {
+    vscode.window.showInformationMessage('Hi from Custom Pomodoro!');
+  });
 
-	const dis = vscode.commands.registerCommand('custom-pomodoro.time', () => {
-		const date = new Date();
-		const hour = String(date.getHours() + 1).padStart(2, '0');
-		const min = String(date.getMinutes()).padStart(2, '0');
+  const disposableTime = vscode.commands.registerCommand('custom-pomodoro.time', () => {
+    const date = new Date();
+    const hour = String(date.getHours()).padStart(2, '0');
+    const min = String(date.getMinutes()).padStart(2, '0');
+    const sec = String(date.getSeconds()).padStart(2, '0');
+    vscode.window.showInformationMessage(`Current time is ${hour}:${min}:${sec}`);
+  });
 
-		vscode.window.showInformationMessage(`Current time is ${hour}:${min}`);
-	});
+  // Add disposables to context for cleanup
+  context.subscriptions.push(disposableHi);
+  context.subscriptions.push(disposableTime);
+  context.subscriptions.push(statusBarItem);
 
-	context.subscriptions.push(disposable);
-	context.subscriptions.push(dis);
-
+  // Initial update
+  updateStatusBarItem();
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+  if (clockInterval) {
+    clearInterval(clockInterval); // Clean up the interval
+  }
+  if (statusBarItem) {
+    statusBarItem.dispose(); // Clean up the status bar item
+  }
+}
+
+/**
+ * Updates status bar item with current time, using in-built codicon
+ */
+function updateStatusBarItem(): void {
+  const date = new Date();
+  const hour = String(date.getHours()).padStart(2, '0');
+  const min = String(date.getMinutes()).padStart(2, '0');
+  const sec = String(date.getSeconds()).padStart(2, '0');
+  const timer = `${hour}:${min}:${sec}`;
+  statusBarItem.text = `$(watch) ${timer}`; 
+}
