@@ -20,6 +20,10 @@
       {
         "command": "custom-pomodoro.time",
         "title": "Time"
+      },
+          {
+        "command": "custom-pomodoro.showUI",
+        "title": "Show UI"
       }
     ]
   },
