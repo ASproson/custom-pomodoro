@@ -9,7 +9,7 @@ let clockInterval: NodeJS.Timeout; // To store the interval for cleanup
 // Method is called on extension activation
 export function activate(context: vscode.ExtensionContext) {
   // Create and configure the status bar item
-  statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+  statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
   statusBarItem.text = '$(clock) Loading...'; // Initial text with codicon
   statusBarItem.show();
 
@@ -58,5 +58,5 @@ function updateStatusBarItem(): void {
   const min = String(date.getMinutes()).padStart(2, '0');
   const sec = String(date.getSeconds()).padStart(2, '0');
   const timer = `${hour}:${min}:${sec}`;
-  statusBarItem.text = `$(watch) ${timer}`; 
+  statusBarItem.text = `$(clock) ${timer}`; 
 }
