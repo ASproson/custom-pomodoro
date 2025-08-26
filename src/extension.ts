@@ -47,6 +47,7 @@ function updateStatusBarItem(): void {
     routine.length
   }) ${isRunning ? '' : '(Paused)'}`;
 }
+
 function startTimer(duration: number, isWorkTime: boolean, context: vscode.ExtensionContext) {
   if (isRunning) clearInterval(timerInterval); // Stop any existing timer
   remainingTime = duration;
@@ -59,12 +60,23 @@ function startTimer(duration: number, isWorkTime: boolean, context: vscode.Exten
     if (remainingTime <= 0) {
       clearInterval(timerInterval);
       isRunning = false;
+      const blockType = isWork ? 'Work' : 'Break';
+      vscode.window.showInformationMessage(`${blockType} block completed! ${currentIndex + 1}/${routine.length}`, {
+        modal: false,
+      }); // Non-modal notification
+
       currentIndex++;
       if (currentIndex < routine.length) {
         // Move to the next item in the routine
-        startTimer(routine[currentIndex].duration, routine[currentIndex].isWork, context);
+        const nextIsWork = routine[currentIndex].isWork;
+        const nextDuration = routine[currentIndex].duration;
+        vscode.window.showInformationMessage(
+          `Starting ${nextIsWork ? 'Work' : 'Break'} block (${Math.floor(nextDuration / 60)}m)...`,
+          { modal: false }
+        );
+        startTimer(nextDuration, nextIsWork, context);
       } else {
-        vscode.window.showInformationMessage('Routine completed!');
+        vscode.window.showInformationMessage('Routine completed!', { modal: false });
         currentIndex = 0; // Reset for next use
       }
     }

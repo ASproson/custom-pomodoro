@@ -6,6 +6,8 @@ When a timer is complete, a notification is displayed inside of VSCode to let yo
 
 ![Pomodoro GIF](./custom-pomodoro-gif.gif)
 
+![Notifications](./notifications.png)
+
 ## Release Notes
 
 Users appreciate release notes as you update your extension.
