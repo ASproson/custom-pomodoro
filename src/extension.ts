@@ -9,14 +9,6 @@ let isWork: boolean = true;
 let routine: { duration: number; isWork: boolean }[] = [];
 let currentIndex = 0;
 
-const PRESETS = {
-  work: 25 * 60, // 25 minutes
-  longWork: 50 * 60, // 50 minutes
-  shortBreak: 5 * 60, // 5 minutes
-  midBreak: 10 * 60, // 10 minutes
-  longBreak: 15 * 60, // 15 minutes
-};
-
 export function activate(context: vscode.ExtensionContext) {
   // Create and configure status bar item
   statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
@@ -89,15 +81,23 @@ function showPomodoroUI(context: vscode.ExtensionContext) {
 
   // Get the path to the webview.html file relative to the extension
   const webviewHtmlPath = vscode.Uri.joinPath(context.extensionUri, 'src', 'webview.html');
+  const webviewJsPath = vscode.Uri.joinPath(context.extensionUri, 'src', 'pomodoro.js');
 
   // Read the HTML file content asynchronously
   (async () => {
     try {
       const data = await vscode.workspace.fs.readFile(webviewHtmlPath);
-      const htmlContent = new TextDecoder().decode(data); // Convert Uint8Array to string
+      let htmlContent = new TextDecoder().decode(data); // Convert Uint8Array to string
+
+      // Convert the JS file URI to a Webview URI
+      const jsUri = panel.webview.asWebviewUri(webviewJsPath);
+      console.log('JS URI:', jsUri.toString()); // Debug log to verify URI
+
+      // Replace the script src placeholder with the Webview URI
+      htmlContent = htmlContent.replace('<script></script>', `<script src="${jsUri}"></script>`);
       panel.webview.html = htmlContent;
     } catch (error) {
-      console.error('Error loading webview.html:', error);
+      console.error('Error loading webview files:', error);
       const errorMessage = error instanceof Error ? error.message : String(error);
       panel.webview.html =
         '<html><body><h1>Error loading Pomodoro UI</h1><p>Details: ' + errorMessage + '</p></body></html>';
