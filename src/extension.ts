@@ -3,35 +3,35 @@ import * as vscode from 'vscode';
 // Global variables
 let statusBarItem: vscode.StatusBarItem;
 let timerInterval: NodeJS.Timeout;
-let remainingTime: number = 0 // In seconds
-let isRunning: boolean = false
-let isWork: boolean = true
+let remainingTime: number = 0; // In seconds
+let isRunning: boolean = false;
+let isWork: boolean = true;
 
 const PRESETS = {
-	work: 25 * 60, // 25 minutes
-	shortBreak: 5 * 60, // 5 minutes
-	longBreak: 15 * 60 // 15 minutes
-}
+  work: 25 * 60, // 25 minutes
+  shortBreak: 5 * 60, // 5 minutes
+  longBreak: 15 * 60, // 15 minutes
+};
 
 export function activate(context: vscode.ExtensionContext) {
-	// Create and configure status bar item
-	statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)
-	statusBarItem.text = `$(clock) Pomodoro: --:--`
-	statusBarItem.command = 'custom-pomodoro.showUI'
-	statusBarItem.tooltip = 'Click to open Pomodoro UI'
-	statusBarItem.show()
+  // Create and configure status bar item
+  statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+  statusBarItem.text = `$(clock) Pomodoro: --:--`;
+  statusBarItem.command = 'custom-pomodoro.showUI';
+  statusBarItem.tooltip = 'Click to open Pomodoro UI';
+  statusBarItem.show();
 
-	  // Register commands
+  // Register commands
   const disposableShowUI = vscode.commands.registerCommand('custom-pomodoro.showUI', () => {
     showPomodoroUI(context);
   });
 
-	// Add disposables to context for cleanup
-	context.subscriptions.push(disposableShowUI);
-	context.subscriptions.push(statusBarItem)
+  // Add disposables to context for cleanup
+  context.subscriptions.push(disposableShowUI);
+  context.subscriptions.push(statusBarItem);
 
-	// Initial update
-	updateStatusBarItem();
+  // Initial update
+  updateStatusBarItem();
 }
 
 // This method is called when your extension is deactivated
@@ -73,16 +73,13 @@ function startTimer(duration: number, isWorkTime: boolean, context: vscode.Exten
 }
 
 function showPomodoroUI(context: vscode.ExtensionContext) {
-  const panel = vscode.window.createWebviewPanel(
-    'pomodoroUI',
-    'Pomodoro Timer',
-    vscode.ViewColumn.One,
-    { enableScripts: true }
-  );
+  const panel = vscode.window.createWebviewPanel('pomodoroUI', 'Pomodoro Timer', vscode.ViewColumn.One, {
+    enableScripts: true,
+  });
 
   // Get the path to the webview.html file relative to the extension
   const webviewHtmlPath = vscode.Uri.joinPath(context.extensionUri, 'src', 'webview.html');
-  
+
   // Read the HTML file content asynchronously
   (async () => {
     try {
@@ -91,8 +88,9 @@ function showPomodoroUI(context: vscode.ExtensionContext) {
       panel.webview.html = htmlContent;
     } catch (error) {
       console.error('Error loading webview.html:', error);
-      const errorMessage = (error instanceof Error) ? error.message : String(error);
-      panel.webview.html = '<html><body><h1>Error loading Pomodoro UI</h1><p>Details: ' + errorMessage + '</p></body></html>';
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      panel.webview.html =
+        '<html><body><h1>Error loading Pomodoro UI</h1><p>Details: ' + errorMessage + '</p></body></html>';
     }
   })();
 
