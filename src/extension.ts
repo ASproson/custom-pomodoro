@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-// "onStartUpFinished" in package.json auto-starts
+
 
 // Global variables
 let statusBarItem: vscode.StatusBarItem;

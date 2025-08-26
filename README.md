@@ -1,8 +1,12 @@
 # custom-pomodoro README
 
-This is the README for your extension "custom-pomodoro". After writing up a brief description, we recommend including the following sections.
+This extension creates a pomodoro timer in the bottom right hand corner of VSCode. By clicking the timer you can view the web UI which lets you select custom or premade timers for both work and break time. You can also play, pause, resume, and reset the timer here
+
+When a timer is complete, a notification is displayed inside of VSCode to let you know that the timer has expired
 
 ## Features
+
+Show screenshots here
 
 Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
 
@@ -14,7 +18,7 @@ For example if there is an image subfolder under your extension project workspac
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+None
 
 ## Extension Settings
 
