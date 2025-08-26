@@ -4,13 +4,7 @@ This extension creates a pomodoro timer in the bottom right hand corner of VSCod
 
 When a timer is complete, a notification is displayed inside of VSCode to let you know that the timer has expired.
 
-Show screenshots here
-
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
+![Pomodoro GIF](./custom-pomodoro-gif.gif)
 
 ## Release Notes
 
