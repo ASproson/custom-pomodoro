@@ -38,6 +38,13 @@
       .preset-btn:hover {
         background: #0066cc;
       }
+      #routineList {
+        list-style-type: none;
+        padding: 0;
+      }
+      #routineList li {
+        margin: 5px 0;
+      }
     </style>
   </head>
   <body>
@@ -45,7 +52,7 @@
     <div>
       <label for="customTime">Custom Time (minutes, up to 60): </label>
       <input type="number" id="customTime" min="1" max="60" value="25" />
-      <button onclick="setCustomTime()">Set</button>
+      <button onclick="setCustomTime()">Add to Routine</button>
     </div>
     <div>
       <button class="preset-btn" onclick="setPreset('work')">Work (25m)</button>
@@ -56,6 +63,10 @@
       <button class="preset-btn" onclick="setPreset('midBreak')">Break (10m)</button>
       <button class="preset-btn" onclick="setPreset('longBreak')">Break (15m)</button>
     </div>
+
+    <h3>Routine</h3>
+    <ul id="routineList"></ul>
+
     <div>
       <button onclick="startTimer()">Start</button>
       <button onclick="pauseTimer()">Pause</button>
@@ -69,7 +80,7 @@
       function setCustomTime() {
         const time = parseInt(document.getElementById('customTime').value);
         if (time > 0 && time <= 60) {
-          vscode.postMessage({ command: 'setTime', duration: time * 60, isWork: true });
+          vscode.postMessage({ command: 'addToRoutine', duration: time * 60, isWork: true });
         } else {
           alert('Please enter a time between 1 and 60 minutes.');
         }
@@ -83,7 +94,7 @@
           midBreak: 10 * 60,
           longBreak: 15 * 60,
         };
-        vscode.postMessage({ command: 'setTime', duration: durations[type], isWork: type === 'work' });
+        vscode.postMessage({ command: 'addToRoutine', duration: durations[type], isWork: type.includes('work') });
       }
 
       function startTimer() {
@@ -105,7 +116,11 @@
       window.addEventListener('message', (event) => {
         const message = event.data;
         switch (message.command) {
-          case 'update':
+          case 'updateRoutine':
+            const routineList = document.getElementById('routineList');
+            routineList.innerHTML = message.routine
+              .map((item) => `<li>${item.isWork ? 'Work' : 'Break'} ${Math.floor(item.duration / 60)}m</li>`)
+              .join('');
             break;
         }
       });

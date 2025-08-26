@@ -6,10 +6,14 @@ let timerInterval: NodeJS.Timeout;
 let remainingTime: number = 0; // In seconds
 let isRunning: boolean = false;
 let isWork: boolean = true;
+let routine: { duration: number; isWork: boolean }[] = [];
+let currentIndex = 0;
 
 const PRESETS = {
   work: 25 * 60, // 25 minutes
+  longWork: 50 * 60, // 50 minutes
   shortBreak: 5 * 60, // 5 minutes
+  midBreak: 10 * 60, // 10 minutes
   longBreak: 15 * 60, // 15 minutes
 };
 
@@ -41,15 +45,16 @@ export function deactivate() {
 }
 
 function updateStatusBarItem(): void {
-  if (!isRunning || remainingTime <= 0) {
+  if (remainingTime <= 0) {
     statusBarItem.text = '$(clock) Pomodoro: --:--';
     return;
   }
   const minutes = String(Math.floor(remainingTime / 60)).padStart(2, '0');
   const seconds = String(remainingTime % 60).padStart(2, '0');
-  statusBarItem.text = `$(clock) ${isWork ? 'Work' : 'Break'}: ${minutes}:${seconds}`;
+  statusBarItem.text = `$(clock) ${isWork ? 'Work' : 'Break'}: ${minutes}:${seconds} (Step ${currentIndex + 1}/${
+    routine.length
+  }) ${isRunning ? '' : '(Paused)'}`;
 }
-
 function startTimer(duration: number, isWorkTime: boolean, context: vscode.ExtensionContext) {
   if (isRunning) clearInterval(timerInterval); // Stop any existing timer
   remainingTime = duration;
@@ -62,9 +67,14 @@ function startTimer(duration: number, isWorkTime: boolean, context: vscode.Exten
     if (remainingTime <= 0) {
       clearInterval(timerInterval);
       isRunning = false;
-      vscode.window.showInformationMessage(`Time's up! ${isWork ? 'Break time!' : 'Back to work!'}`);
-      // Optionally auto-switch: start break after work, or work after long break
-      if (isWork) startTimer(PRESETS.shortBreak, false, context); // Start short break after work
+      currentIndex++;
+      if (currentIndex < routine.length) {
+        // Move to the next item in the routine
+        startTimer(routine[currentIndex].duration, routine[currentIndex].isWork, context);
+      } else {
+        vscode.window.showInformationMessage('Routine completed!');
+        currentIndex = 0; // Reset for next use
+      }
     }
   }, 1000);
 
@@ -97,11 +107,18 @@ function showPomodoroUI(context: vscode.ExtensionContext) {
   panel.webview.onDidReceiveMessage(
     (message) => {
       switch (message.command) {
-        case 'setTime':
-          startTimer(message.duration, message.isWork, context);
+        case 'addToRoutine':
+          routine.push({ duration: message.duration, isWork: message.isWork });
+          panel.webview.postMessage({ command: 'updateRoutine', routine });
           break;
         case 'start':
-          if (!isRunning && remainingTime > 0) startTimer(remainingTime, isWork, context);
+          if (routine.length === 0) {
+            vscode.window.showInformationMessage('No routine set!');
+            break;
+          }
+          if (!isRunning && currentIndex < routine.length) {
+            startTimer(routine[currentIndex].duration, routine[currentIndex].isWork, context);
+          }
           break;
         case 'pause':
           if (isRunning) {
@@ -111,13 +128,18 @@ function showPomodoroUI(context: vscode.ExtensionContext) {
           }
           break;
         case 'resume':
-          if (!isRunning && remainingTime > 0) startTimer(remainingTime, isWork, context);
+          if (!isRunning && remainingTime > 0 && currentIndex < routine.length) {
+            startTimer(remainingTime, isWork, context);
+          }
           break;
         case 'reset':
           clearInterval(timerInterval);
           isRunning = false;
           remainingTime = 0;
+          currentIndex = 0; // Reset to start of routine
+          routine = []; // Clear routine on reset
           updateStatusBarItem();
+          panel.webview.postMessage({ command: 'updateRoutine', routine });
           break;
       }
     },
