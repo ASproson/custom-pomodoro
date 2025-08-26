@@ -1,7 +1,5 @@
 import * as vscode from 'vscode';
 
-
-
 // Global variables
 let statusBarItem: vscode.StatusBarItem;
 let timerInterval: NodeJS.Timeout;
@@ -82,88 +80,21 @@ function showPomodoroUI(context: vscode.ExtensionContext) {
     { enableScripts: true }
   );
 
-  panel.webview.html = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Pomodoro Timer</title>
-      <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background: #1e1e1e; color: #ccc; }
-        h2 { color: #fff; }
-        button { padding: 5px 10px; margin: 5px; background: #333; color: #fff; border: none; cursor: pointer; }
-        button:hover { background: #444; }
-        input { padding: 5px; margin: 5px; background: #222; color: #fff; border: 1px solid #444; }
-        .preset-btn { background: #005cc5; }
-        .preset-btn:hover { background: #0066cc; }
-      </style>
-    </head>
-    <body>
-      <h2>Pomodoro Timer</h2>
-      <div>
-        <label for="customTime">Custom Time (minutes, up to 60): </label>
-        <input type="number" id="customTime" min="1" max="60" value="25">
-        <button onclick="setCustomTime()">Set</button>
-      </div>
-      <div>
-        <button class="preset-btn" onclick="setPreset('work')">Work (25m)</button>
-        <button class="preset-btn" onclick="setPreset('shortBreak')">Short Break (5m)</button>
-        <button class="preset-btn" onclick="setPreset('longBreak')">Long Break (15m)</button>
-      </div>
-      <div>
-        <button onclick="startTimer()">Start</button>
-        <button onclick="pauseTimer()">Pause</button>
-        <button onclick="resumeTimer()">Resume</button>
-        <button onclick="resetTimer()">Reset</button>
-      </div>
-
-      <script>
-        const vscode = acquireVsCodeApi();
-
-        function setCustomTime() {
-          const time = parseInt(document.getElementById('customTime').value);
-          if (time > 0 && time <= 60) {
-            vscode.postMessage({ command: 'setTime', duration: time * 60, isWork: true });
-          } else {
-            alert('Please enter a time between 1 and 60 minutes.');
-          }
-        }
-
-        function setPreset(type) {
-          const durations = ${JSON.stringify(PRESETS)};
-          vscode.postMessage({ command: 'setTime', duration: durations[type], isWork: type === 'work' });
-        }
-
-        function startTimer() {
-          vscode.postMessage({ command: 'start' });
-        }
-
-        function pauseTimer() {
-          vscode.postMessage({ command: 'pause' });
-        }
-
-        function resumeTimer() {
-          vscode.postMessage({ command: 'resume' });
-        }
-
-        function resetTimer() {
-          vscode.postMessage({ command: 'reset' });
-        }
-
-        // Handle messages from the extension
-        window.addEventListener('message', event => {
-          const message = event.data;
-          switch (message.command) {
-            case 'update':
-              // Update UI if needed (e.g., remaining time)
-              break;
-          }
-        });
-      </script>
-    </body>
-    </html>
-  `;
+  // Get the path to the webview.html file relative to the extension
+  const webviewHtmlPath = vscode.Uri.joinPath(context.extensionUri, 'src', 'webview.html');
+  
+  // Read the HTML file content asynchronously
+  (async () => {
+    try {
+      const data = await vscode.workspace.fs.readFile(webviewHtmlPath);
+      const htmlContent = new TextDecoder().decode(data); // Convert Uint8Array to string
+      panel.webview.html = htmlContent;
+    } catch (error) {
+      console.error('Error loading webview.html:', error);
+      const errorMessage = (error instanceof Error) ? error.message : String(error);
+      panel.webview.html = '<html><body><h1>Error loading Pomodoro UI</h1><p>Details: ' + errorMessage + '</p></body></html>';
+    }
+  })();
 
   panel.webview.onDidReceiveMessage(
     (message) => {
