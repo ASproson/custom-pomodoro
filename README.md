@@ -10,8 +10,6 @@ When a timer is complete, a notification is displayed inside of VSCode to let yo
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
+### 0.1.0
 
 Initial release of Custom Pomodoro
