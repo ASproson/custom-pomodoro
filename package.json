@@ -28,7 +28,13 @@
         "command": "custom-pomodoro.showUI",
         "title": "Show UI"
       }
-    ]
+    ],
+    "webviews": {
+      "resources": [
+        "src/webview.html",
+        "src/pomodoro.js"
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

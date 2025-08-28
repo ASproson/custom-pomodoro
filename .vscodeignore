@@ -9,3 +9,10 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+
+
+*.md
+*.ts
+*.map
+!src/webview.html
+!src/pomodoro.js
