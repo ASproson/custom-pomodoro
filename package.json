@@ -2,7 +2,7 @@
   "name": "custom-pomodoro",
   "displayName": "Custom Pomodoro",
   "description": "Pomodoro timer that lets you set custom time limits",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publisher": "ASproson-custom-pomodoro",
   "engines": {
     "vscode": "^1.103.0"
