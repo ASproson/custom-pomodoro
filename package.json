@@ -9,19 +9,21 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [ "onStartupFinished"], 
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "custom-pomodoro.hiWorld",
         "title": "Hi World"
-      }, 
+      },
       {
         "command": "custom-pomodoro.time",
         "title": "Time"
       },
-          {
+      {
         "command": "custom-pomodoro.showUI",
         "title": "Show UI"
       }
@@ -34,6 +36,10 @@
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
     "test": "vscode-test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ASproson/custom-pomodoro.git"
   },
   "devDependencies": {
     "@types/vscode": "^1.103.0",
